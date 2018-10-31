@@ -2,7 +2,7 @@ const http          = require('http');
 const url           = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
 
-const server = http.createServer(function(req,res){
+const server = http.createServer((req,res) => {
     const URL           = url.parse(req.url, true);
     const path          = URL.pathname;
     const trimmedPath   = path.replace(/^\/+|\/+$/g, '');
@@ -10,21 +10,19 @@ const server = http.createServer(function(req,res){
     const decoder = new StringDecoder('utf-8');
     let buffer          = '';
 
-    req.on('data', function(data){
-        buffer += decoder.write(data);
-    });
+    req.on('data', (data) => buffer += decoder.write(data));
 
-    req.on('end', function(){
+    req.on('end', () => {
         buffer += decoder.end();
 
         const route = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : routes.notFound;
         const data = {
-            'trimmedPath': trimmedPath,
-            'qs': qs,
-            'buffer': buffer
-        }
+            trimmedPath,
+            qs,
+            buffer
+        };
 
-        route(data, function(statusCode, payload){
+        route(data, (statusCode, payload) => {
 
             statusCode  = typeof(statusCode) === 'number' ? statusCode : 200;
             payload     = typeof(payload) === 'object' ? payload : {};
@@ -39,19 +37,17 @@ const server = http.createServer(function(req,res){
     });
 });
 
-server.listen(80, function(){
-    console.log("The server is listening on port 80");
-});
+server.listen(80, () => console.log("Server is listening on port 80"));
 
 const routes = {};
 
-routes.hello = function(data, callback){
+routes.hello = (data, callback) => {
   callback(200, {
       "welcome": "I was going to route this properly... BUT AM I GONNA?"
   });
 };
 
-routes.notFound = function(data, callback){
+routes.notFound = (data, callback) => {
     callback(404);
 };
 
